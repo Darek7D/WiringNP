@@ -28,11 +28,12 @@ PREFIX=/local
 
 #DEBUG	= -g -O0
 DEBUG	= -O2
-CC	= gcc
-INCLUDE	= -I$(DESTDIR)$(PREFIX)/include
-CFLAGS	= $(DEBUG) -Wall $(INCLUDE) -Winline -pipe
 
-LDFLAGS	= -L$(DESTDIR)$(PREFIX)/lib
+CC	?= gcc
+INCLUDE	= -I../wiringPi -I../devLib
+CFLAGS	+= $(DEBUG) -Wall -Wextra $(INCLUDE) -Winline -pipe
+
+LDFLAGS	= -L../wiringPi -L../devLib
 LIBS    = -lwiringPi -lwiringPiDev -lpthread -lm
 
 # May not need to  alter anything below this line
@@ -45,9 +46,13 @@ OBJ	=	$(SRC:.c=.o)
 all:		gpio
 
 gpio:	$(OBJ)
-	@echo [Link]
+	@echo [Link Dynamic]
 	@$(CC) -o $@ $(OBJ) $(LDFLAGS) $(LIBS)
 	
+gpio-static: $(OBJ)
+	echo "[Link (Static)]"
+	$(CC) -static -o gpio $(OBJ) ../wiringPi/libwiringPi.a ../devLib/libwiringPiDev.a -lpthread
+
 .c.o:
 	@echo [Compile] $<
 	@$(CC) -c $(CFLAGS) $< -o $@

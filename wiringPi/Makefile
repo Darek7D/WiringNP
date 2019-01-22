@@ -33,10 +33,10 @@ DYNAMIC=libwiringPi.so.$(VERSION)
 
 #DEBUG	= -g -O0
 DEBUG	= -O2
-CC	= gcc
+CC	?= gcc
 INCLUDE	= -I.
 DEFS	= -D_GNU_SOURCE
-CFLAGS	= $(DEBUG) $(DEFS) -Wformat=2 -Wall -Winline $(INCLUDE) -pipe -fPIC -Wpointer-to-int-cast
+CFLAGS	+= $(DEBUG) $(DEFS) -Wformat=2 -Wall -Winline $(INCLUDE) -pipe -fPIC -Wpointer-to-int-cast
 
 LIBS    =
 
@@ -73,6 +73,7 @@ $(STATIC):	$(OBJ)
 $(DYNAMIC):	$(OBJ)
 	@echo "[Link (Dynamic)]"
 	@$(CC) -shared -Wl,-soname,libwiringPi.so -o libwiringPi.so.$(VERSION) -lpthread $(OBJ)
+	ln -sf libwiringPi.so.$(VERSION) libwiringPi.so
 
 .c.o:
 	@echo [Compile] $<
@@ -124,7 +125,7 @@ install:	$(DYNAMIC) install-headers
 	@echo "[Install Dynamic Lib]"
 	@install -m 0755 -d						$(DESTDIR)$(PREFIX)/lib
 	@install -m 0755 libwiringPi.so.$(VERSION)			$(DESTDIR)$(PREFIX)/lib/libwiringPi.so.$(VERSION)
-	@ln -sf $(DESTDIR)$(PREFIX)/lib/libwiringPi.so.$(VERSION)	$(DESTDIR)/lib/libwiringPi.so
+	@ln -sf libwiringPi.so.$(VERSION)				$(DESTDIR)$(PREFIX)/lib/libwiringPi.so
 	@ldconfig
 
 .PHONEY:	install-static
